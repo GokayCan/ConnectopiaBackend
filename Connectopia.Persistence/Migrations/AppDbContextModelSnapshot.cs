@@ -22,6 +22,21 @@ namespace Connectopia.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("AppRoleEndpoint", b =>
+                {
+                    b.Property<int>("EndpointsId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RolesId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("EndpointsId", "RolesId");
+
+                    b.HasIndex("RolesId");
+
+                    b.ToTable("AppRoleEndpoint");
+                });
+
             modelBuilder.Entity("Connectopia.Domain.Entities.AppRole", b =>
                 {
                     b.Property<int>("Id")
@@ -88,14 +103,6 @@ namespace Connectopia.Persistence.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
 
@@ -104,6 +111,10 @@ namespace Connectopia.Persistence.Migrations
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("NameSurname")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -121,6 +132,12 @@ namespace Connectopia.Persistence.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("RefreshTokenEndDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
@@ -142,6 +159,75 @@ namespace Connectopia.Persistence.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("Connectopia.Domain.Entities.Endpoint", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ActionType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Definition")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("HttpType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("MenuId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MenuId");
+
+                    b.ToTable("Endpoints");
+                });
+
+            modelBuilder.Entity("Connectopia.Domain.Entities.Menu", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Menus");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -247,6 +333,32 @@ namespace Connectopia.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("AppRoleEndpoint", b =>
+                {
+                    b.HasOne("Connectopia.Domain.Entities.Endpoint", null)
+                        .WithMany()
+                        .HasForeignKey("EndpointsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Connectopia.Domain.Entities.AppRole", null)
+                        .WithMany()
+                        .HasForeignKey("RolesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Connectopia.Domain.Entities.Endpoint", b =>
+                {
+                    b.HasOne("Connectopia.Domain.Entities.Menu", "Menu")
+                        .WithMany("Endpoints")
+                        .HasForeignKey("MenuId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Menu");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.HasOne("Connectopia.Domain.Entities.AppRole", null)
@@ -296,6 +408,11 @@ namespace Connectopia.Persistence.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Connectopia.Domain.Entities.Menu", b =>
+                {
+                    b.Navigation("Endpoints");
                 });
 #pragma warning restore 612, 618
         }

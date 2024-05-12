@@ -8,8 +8,8 @@ namespace Connectopia.WebAPI.Controllers
     [ApiController]
     public class TestsController : ControllerBase
     {
-        [HttpGet]
-        [Authorize]
+        [HttpGet("deneme")]
+        [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult Get()
         {
             return Ok("Test");
